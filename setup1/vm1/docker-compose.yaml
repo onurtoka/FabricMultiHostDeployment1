@@ -165,5 +165,4 @@ services:
       # - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
       - ./crypto-config/peerOrganizations/org1.example.com/:/etc/hyperledger/channel/crypto-config/peerOrganizations/org1.example.com/
       - ./../vm2/crypto-config/peerOrganizations/org2.example.com/:/etc/hyperledger/channel/crypto-config/peerOrganizations/org2.example.com/
-      - ./../vm3/crypto-config/peerOrganizations/org3.example.com/:/etc/hyperledger/channel/crypto-config/peerOrganizations/org3.example.com/
       - ./../vm4/crypto-config/ordererOrganizations/example.com/:/etc/hyperledger/channel/crypto-config/ordererOrganizations/example.com/

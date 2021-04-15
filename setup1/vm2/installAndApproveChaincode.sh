@@ -23,7 +23,7 @@ setGlobalsForPeer1Org2() {
 
 presetup() {
     echo Vendoring Go dependencies ...
-    pushd ./../../artifacts/src/github.com/fabcar/go
+    pushd ./../../artifacts/src/github.com/example/go
     GO111MODULE=on go mod vendor
     popd
     echo Finished vendoring Go dependencies
@@ -33,8 +33,8 @@ presetup() {
 CHANNEL_NAME="mychannel"
 CC_RUNTIME_LANGUAGE="golang"
 VERSION="1"
-CC_SRC_PATH="./../../artifacts/src/github.com/fabcar/go"
-CC_NAME="fabcar"
+CC_SRC_PATH="./../../artifacts/src/github.com/example/go"
+CC_NAME="example"
 
 packageChaincode() {
     rm -rf ${CC_NAME}.tar.gz
@@ -92,3 +92,62 @@ checkCommitReadyness() {
 }
 
 # checkCommitReadyness
+
+commitChaincodeDefination() {
+    setGlobalsForPeer0Org1
+    peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
+        --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA \
+        --channelID $CHANNEL_NAME --name ${CC_NAME} \
+        --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
+        --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
+        --version ${VERSION} --sequence ${VERSION} --init-required
+}
+
+# commitChaincodeDefination
+
+queryCommitted() {
+    setGlobalsForPeer0Org1
+    peer lifecycle chaincode querycommitted --channelID $CHANNEL_NAME --name ${CC_NAME}
+
+}
+
+# queryCommitted
+
+chaincodeInvokeInit() {
+    setGlobalsForPeer0Org1
+    peer chaincode invoke -o localhost:7050 \
+        --ordererTLSHostnameOverride orderer.example.com \
+        --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA \
+        -C $CHANNEL_NAME -n ${CC_NAME} \
+        --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
+        --isInit -c '{"Args":[]}'
+
+}
+
+ # --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
+
+# chaincodeInvokeInit
+
+chaincodeInvoke() {
+    setGlobalsForPeer0Org1
+
+    ## Create product
+    peer chaincode invoke -o localhost:7050 \
+        --ordererTLSHostnameOverride orderer.example.com \
+        --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA \
+        -C $CHANNEL_NAME -n ${CC_NAME} \
+        --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
+        --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA   \
+        ##-c '{"function": "createCar","Args":["Car-ABCDEEE", "Audi", "R8", "Red", "Sandip"]}'
+
+}
+
+# chaincodeInvoke
+
+chaincodeQuery() {
+    setGlobalsForPeer0Org1
+
+    # Query Car by Id
+    peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function": "queryProduct","Args":["PRODUCT0"]}'
+ 
+}
